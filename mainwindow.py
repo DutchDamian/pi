@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QIcon, QPixmap, QImage
+from PyQt5.QtGui import QIcon, QPixmap, QImage, QPainter, QPen, QBrush, QFont
 import sys
 import cv2
 import threading
@@ -11,36 +11,40 @@ class UI_Window(QWidget):
     def __init__(self):
         QWidget.__init__(self)
 
-        # Create a timer.
+        # create timer for video feed
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrameSlot)
 
-        layout = QVBoxLayout()
-        button_layout = QHBoxLayout()
+        scene = QGraphicsScene()
+        self.view = QGraphicsView(scene, self)
+        layout = QVBoxLayout(self)
 
-        btnCamera = QPushButton("Open camera")
-        btnCamera.clicked.connect(self.openCamera)
-        button_layout.addWidget(btnCamera)
-
-        btnCamera = QPushButton("Stop camera")
-        btnCamera.clicked.connect(self.stopCamera)
-        button_layout.addWidget(btnCamera)
-
-        layout.addLayout(button_layout)
+        self.openCamera()
 
         self.label = QLabel()
-        self.label.setFixedSize(480, 320)
-        layout.addWidget(self.label)
+        self.label.setFixedSize(800, 480)
+        pen = QPen()
+        font = QFont()
+        font.setPointSize(20)
+        pen.setWidth(5)
+        pen.setColor(Qt.red)
+        layout.addWidget(self.view)
+        proxy = scene.addWidget(self.label)
+        batteryPixmap = QPixmap.fromImage(QImage('battery_100.png').scaled(40,40))
+        rulerPixmap = QPixmap.fromImage(QImage('ruler.png').scaled(40,40))
+        self.lineItem = scene.addLine(400,0,400,480, pen)
+        self.batteryTextItem = scene.addText("100%", font).setPos(40,40)
+        self.lengthTextItem = scene.addText("50,12 cm", font).setPos(40,90)
+        self.batteryPixmapItem = scene.addPixmap(batteryPixmap).setPos(0,40)
+        self.rulerPixmapItem = scene.addPixmap(rulerPixmap).setPos(0,90)
 
-        # Set the layout
+        # Layout necessary?
         self.setLayout(layout)
         self.setWindowTitle("EEP71")
-        self.setFixedSize(480, 320)
 
-    # https://stackoverflow.com/questions/1414781/prompt-on-exit-in-pyqt-application
-    def closeEvent(self, event):
+    '''def closeEvent(self, event):
     
-        msg = "Close the app?"
+        msg = "Are you sure?"
         reply = QMessageBox.question(self, 'Message', 
                         msg, QMessageBox.Yes, QMessageBox.No)
 
@@ -48,7 +52,7 @@ class UI_Window(QWidget):
             event.accept()
             self.stopCamera()
         else:
-            event.ignore()
+            event.ignore()'''
 
     def resizeImage(self, filename):
         pixmap = QPixmap(filename)
@@ -74,8 +78,9 @@ class UI_Window(QWidget):
     def openCamera(self):
         self.vc = cv2.VideoCapture(0)
         # vc.set(5, 30)  #set FPS
-        self.vc.set(3, 320) #set width
-        self.vc.set(4, 240) #set height
+        print(self.geometry)
+        self.vc.set(3, 800) #set width
+        self.vc.set(4, 480) #set height
 
         if not self.vc.isOpened(): 
             msgBox = QMessageBox()
@@ -94,12 +99,17 @@ class UI_Window(QWidget):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image = QImage(frame, frame.shape[1], frame.shape[0], QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(image)
-        self.label.setPixmap(pixmap)
+        '''self.painterInstance = QPainter(pixmap)
+        self.penRectangle = QPen(Qt.red)
+        self.penRectangle.setWidth
+        self.painterInstance.drawRect(0,0,200,200)'''
+        self.label.setPixmap(pixmap)    
             
 def main():
     app = QApplication(sys.argv)
     ex = UI_Window()
     ex.show()
+    ex.showMaximized()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

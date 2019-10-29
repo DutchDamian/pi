@@ -1,0 +1,26 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter M
+  \item \spxentry{mainwindow}\spxextra{module}, \hyperpage{5}
+
+  \indexspace
+  \bigletter N
+  \item \spxentry{nextFrameSlot()}\spxextra{mainwindow.UI\_Window method}, \hyperpage{5}
+
+  \indexspace
+  \bigletter O
+  \item \spxentry{openCamera()}\spxextra{mainwindow.UI\_Window method}, \hyperpage{5}
+
+  \indexspace
+  \bigletter S
+  \item \spxentry{stopCamera()}\spxextra{mainwindow.UI\_Window method}, \hyperpage{5}
+
+  \indexspace
+  \bigletter U
+  \item \spxentry{UI\_Window}\spxextra{class in mainwindow}, \hyperpage{5}
+
+\end{sphinxtheindex}

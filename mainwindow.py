@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QIcon, QPixmap, QImage, QPainter, QPen, QBrush, QFont
+from PyQt5.QtGui import QIcon, QPixmap, QImage, QPainter, QPen, QBrush, QFont, QColor
+from typing import Union
 import sys
 import cv2
 import threading
@@ -28,18 +29,31 @@ class UI_Window(QWidget):
         self.label.setFixedSize(screenWidth, screenHeight)
         pen = QPen() # QPen is used to change the properties of the middle line drawn in the GUI.
         pen.setWidth(20)
-        pen.setColor(Qt.green)
-        font = QFont() # QFont is used to change the properties of the text rendered in the GUI.
-        font.setPointSize(20) 
+        pen.setColor(Qt.red)
+        font = QFont('', 30) # QFont is used to change the properties of the text rendered in the GUI.
+        font.setStyle
+        #font.setPointSize(30) 
+        backgroundRectangle = QGraphicsRectItem(0,0,310,480)
+        backgroundRectangle.setBrush(QBrush(QColor(48,47,125)))
         layout.addWidget(self.view)
         scene.addWidget(self.label)
-        batteryPixmap = QPixmap.fromImage(QImage('battery_100.png').scaled(40,40))
+        batteryPixmap = QPixmap.fromImage(QImage('battery_100.png'))
         rulerPixmap = QPixmap.fromImage(QImage('ruler.png').scaled(40,40))
-        self.lineItem = scene.addLine(400,0,400,480, pen)
-        self.lengthTextItem = scene.addText("50,1 cm (PLACEHOLDER)", font).setPos(40,90)
-        self.rulerPixmapItem = scene.addPixmap(rulerPixmap).setPos(0,90)
-        self.batteryTextItem = scene.addText("100% (PLACEHOLDER)", font).setPos(40,40)
-        self.batteryPixmapItem = scene.addPixmap(batteryPixmap).setPos(0,40)
+        scene.addItem(backgroundRectangle)
+        self.lineItem = scene.addLine(310,10,310,470, pen)
+        #self.lengthTextItem = scene.addText("00,0 cm", font).setPos(310/2-60,360)
+        lengthTextItem = QGraphicsTextItem("00,0 cm")
+        lengthTextItem.setFont(font)
+        lengthTextItem.setPos(310/2-60,360)
+        lengthTextItem.setDefaultTextColor(Qt.white)
+        scene.addItem(lengthTextItem)
+        batteryTextItem = QGraphicsTextItem("100%")
+        batteryTextItem.setFont(font)
+        batteryTextItem.setDefaultTextColor(Qt.white)
+        batteryTextItem.setPos(201/2,120)
+        scene.addItem(batteryTextItem)
+       # self.batteryTextItem = scene.addText("100%", font).setPos(201/2,120)
+        self.batteryPixmapItem = scene.addPixmap(batteryPixmap).setPos(59,52)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")

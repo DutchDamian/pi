@@ -46,8 +46,8 @@ class UI_Window(QWidget):
         font2.setPixelSize(70)
 
         # Pixmaps
-        happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
-        create4CarePixmap = QPixmap.fromImage(QImage('create4care.png'))
+        #happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
+        #create4CarePixmap = QPixmap.fromImage(QImage('create4care.png'))
         self.batteryEmptyPixmap = QPixmap.fromImage(QImage('battery_empty.png'))
         self.warningPixmap = QPixmap.fromImage(QImage('warning.png'))
         self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('warning_placeholder.png'))
@@ -61,50 +61,57 @@ class UI_Window(QWidget):
         # Labels
         self.batteryLabel = QLabel()
         self.batteryLabel.setFixedSize(120, 41)
-        self.batteryLabel.setGeometry(39,30,0,0)
+        self.batteryLabel.setGeometry(639,30,0,0)
 
         self.warningLabel = QLabel()
         self.warningLabel.setFixedSize(129,66)
-        self.warningLabel.setGeometry(39,200,0,0)
+        self.warningLabel.setGeometry(639,200,0,0)
         self.warningLabel.setPixmap(self.warningPlaceholderPixmap)
 
         self.emptyLabel = QLabel()
         self.emptyLabel.setFixedSize(209, 219)
-        self.emptyLabel.setGeometry(500,110,0,0)
+        self.emptyLabel.setGeometry(100,110,0,0)
         self.emptyLabel.setStyleSheet("background:transparent")
 
         # Shapes & Lines
-        backgroundRectangle = QGraphicsRectItem(0, 0, 200, 480)
+        backgroundRectangle = QGraphicsRectItem(600, 0, 200, 480)
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
 
         # TextItems
-        # self.lengthTextItem = QGraphicsTextItem("00,0 cm")
-        # self.lengthTextItem.setFont(font)
-        # self.lengthTextItem.setPos(200, 200)
-        # self.lengthTextItem.setDefaultTextColor(Qt.white)
+        self.lengthTextItem = QGraphicsTextItem("")
+        self.lengthTextItem.setFont(font2)
+        self.lengthTextItem.setPos(620, 350)
+        self.lengthTextItem.setDefaultTextColor(Qt.white)
+        self.lengthUnitTextItem = QGraphicsTextItem("CM")
+        self.lengthUnitTextItem.setFont(font)
+        self.lengthUnitTextItem.setPos(650 + 20, 430)
+        self.lengthUnitTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
-        self.batteryTextItem.setPos(39 + 30, 75)
+        self.batteryTextItem.setPos(650 + 20, 75)
 
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
         threading.Thread(target=self.counterThread).start()
 
+        self.distanceSignal.connect(self.lengthTextItem.setPlainText)
+        threading.Thread(target=self.distanceThread).start()
+
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
         layout.addWidget(self.view)
         self.scene.addWidget(self.label)
         self.scene.addItem(backgroundRectangle)
-        # self.scene.addItem(lengthTextItem)
+        self.scene.addItem(self.lengthTextItem)
         self.scene.addItem(self.batteryTextItem)
+        self.scene.addItem(self.lengthUnitTextItem)
         self.scene.addWidget(self.batteryLabel)
         self.scene.addWidget(self.warningLabel)
         self.scene.addWidget(self.emptyLabel)
-        # self.batteryPixmapItem = self.scene.addPixmap(battery100Pixmap).setPos(39,30)
-        self.happyMeasurePixmapItem = self.scene.addPixmap(
-            happyMeasurePixmap).setPos(38, 327)
-        self.create4CarePixmapItem = self.scene.addPixmap(
-            create4CarePixmap).setPos(38, 406)
+        #self.happyMeasurePixmapItem = self.scene.addPixmap(
+        #    happyMeasurePixmap).setPos(600+38, 327)
+        #self.create4CarePixmapItem = self.scene.addPixmap(
+        #    create4CarePixmap).setPos(600+38, 406)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
         self.lineItem = self.scene.addLine(400, 3, 400, 477, pen)
 
@@ -151,6 +158,11 @@ class UI_Window(QWidget):
             self.counterSignal.emit(str(x)+"%")
             time.sleep(.5)
 
+    def distanceThread(self):
+        for x in [x * 0.1 for x in range(100,500)]:
+            self.distanceSignal.emit(str("{0:0.1f}".format(x)).replace('.',','))
+            time.sleep(.1)
+    
     def stopCamera(self):
         '''Stops the camera.'''
         self.timer.stop()

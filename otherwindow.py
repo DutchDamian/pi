@@ -139,9 +139,9 @@ class UI_Window(QWidget):
         print("bla")
 
     def counterThread(self):
-        self.batteryLabel.setPixmap(self.battery100Pixmap)
+        self.batteryLabel.setPixmap(self.battery80Pixmap)
 
-        for x in range(100, 0, -1):
+        for x in range(65, 0, -1):
             if (x == 79):
                self.batteryLabel.setPixmap(self.battery80Pixmap)
             if (x == 59):
@@ -156,7 +156,7 @@ class UI_Window(QWidget):
             if (x == 0):
                 self.batteryLabel.setPixmap(self.battery0Pixmap)
             self.counterSignal.emit(str(x)+"%")
-            time.sleep(.5)
+            time.sleep(.25)
 
     def distanceThread(self):
         for x in [x * 0.1 for x in range(100,500)]:

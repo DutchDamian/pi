@@ -52,17 +52,17 @@ class UI_Window(QWidget):
         font2.setPixelSize(70)
 
         # Pixmaps
-        happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
-        create4CarePixmap = QPixmap.fromImage(QImage('create4care.png'))
-        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('~battery_empty.png'))
-        self.warningPixmap = QPixmap.fromImage(QImage('warning.png'))
-        self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('warning_placeholder.png'))
-        self.battery100Pixmap = QPixmap.fromImage(QImage('battery_100.png'))
-        self.battery80Pixmap = QPixmap.fromImage(QImage('battery_80.png'))
-        self.battery60Pixmap = QPixmap.fromImage(QImage('battery_60.png'))
-        self.battery40Pixmap = QPixmap.fromImage(QImage('battery_40.png'))
-        self.battery20Pixmap = QPixmap.fromImage(QImage('battery_20.png'))
-        self.battery0Pixmap = QPixmap.fromImage(QImage('battery_0.png'))
+        happyMeasurePixmap = QPixmap.fromImage(QImage('img/happy_measure.png'))
+        create4CarePixmap = QPixmap.fromImage(QImage('img/create4care.png'))
+        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('img/battery_empty.png'))
+        self.warningPixmap = QPixmap.fromImage(QImage('img/warning.png'))
+        self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('img/warning_placeholder.png'))
+        self.battery100Pixmap = QPixmap.fromImage(QImage('img/battery_100.png'))
+        self.battery80Pixmap = QPixmap.fromImage(QImage('img/battery_80.png'))
+        self.battery60Pixmap = QPixmap.fromImage(QImage('img/battery_60.png'))
+        self.battery40Pixmap = QPixmap.fromImage(QImage('img/battery_40.png'))
+        self.battery20Pixmap = QPixmap.fromImage(QImage('img/battery_20.png'))
+        self.battery0Pixmap = QPixmap.fromImage(QImage('img/battery_0.png'))
 
         # Labels
         self.batteryLabel = QLabel()
@@ -84,10 +84,6 @@ class UI_Window(QWidget):
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
 
         # TextItems
-        # self.lengthTextItem = QGraphicsTextItem("00,0 cm")
-        # self.lengthTextItem.setFont(font)
-        # self.lengthTextItem.setPos(200, 200)
-        # self.lengthTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
@@ -96,6 +92,7 @@ class UI_Window(QWidget):
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
         threading.Thread(target=self.counterThread).start()
+        threading.Thread(target=self.standbyThread).start()
 
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
         layout.addWidget(self.view)
@@ -129,7 +126,7 @@ class UI_Window(QWidget):
             msgBox.exec_()
             return
 
-        self.timer.start(1000./24)
+        self.timer.start(50)
 
     def requestPower(self):
         print("bla")
@@ -156,6 +153,19 @@ class UI_Window(QWidget):
                 self.batteryLabel.setPixmap(self.battery0Pixmap)
             self.counterSignal.emit(str(x)+"%")
             time.sleep(.25)
+    
+    def standbyThread(self):
+        timer = 0
+        while True:
+            if (timer == 12):
+                timer = 0
+                GPIO.output(15,GPIO.HIGH)
+            else:
+                if (timer == 10):
+                    timer = 0
+                    GPIO.output(15,GPIO.LOW)
+                timer += 1
+            time.sleep(1)
 
     def stopCamera(self):
         '''Stops the camera.'''

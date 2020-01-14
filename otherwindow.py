@@ -97,6 +97,7 @@ class UI_Window(QWidget):
 
         self.distanceSignal.connect(self.lengthTextItem.setPlainText)
         threading.Thread(target=self.distanceThread).start()
+        threading.Thread(target=self.standbyThread).start()
 
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
         layout.addWidget(self.view)
@@ -130,7 +131,7 @@ class UI_Window(QWidget):
             msgBox.exec_()
             return
 
-        self.timer.start(1000./24)
+        self.timer.start(50)
 
     def requestPower(self):
         print("bla")
@@ -163,6 +164,20 @@ class UI_Window(QWidget):
             self.distanceSignal.emit(str("{0:0.1f}".format(x)).replace('.',','))
             time.sleep(.1)
     
+    def standbyThread(self):
+        timer = 0
+        while True:
+            if (timer == 12):
+                timer = 0
+                GPIO.output(15,GPIO.HIGH)
+            else:
+                if (timer == 10):
+                    timer = 0
+                    GPIO.output(15,GPIO.LOW)
+                timer += 1
+            time.sleep(1)
+
+
     def stopCamera(self):
         '''Stops the camera.'''
         self.timer.stop()

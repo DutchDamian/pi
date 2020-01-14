@@ -1,31 +1,34 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QIcon, QPixmap, QImage, QPainter, QPen, QBrush, QFont, QColor
-from typing import Union
+#from typing import Union
 import sys
 import cv2
 import threading
 import time
 import os
-
+import RPi.GPIO as GPIO
 
 class UI_Window(QWidget):
     counterSignal = pyqtSignal(str)
     distanceSignal = pyqtSignal(str)
 
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    GPIO.setup(15,GPIO.OUT)
+
     def __init__(self):
         QWidget.__init__(self)
 
-        screenWidth = 800
+        screenWidth = 780
         screenHeight = 480
+        GPIO.output(15,GPIO.HIGH)
 
         # QTimer uses QFrameSlots wherein every video frame from the live preview is encoded.
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrameSlot)
         # self.timer.timeout.connect(self.requestPower)
         # self.timer.timeout.connect(self.requestDistance)
-
-        
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene, self)
         self.view.setStyleSheet("border: 0px")
@@ -35,7 +38,7 @@ class UI_Window(QWidget):
         self.openCamera()
 
         self.label = QLabel()
-        self.label.setFixedSize(800, 480)
+        self.label.setFixedSize(778, 443)
 
         # QPen is used to change the properties of the middle line drawn in the GUI.
         pen = QPen()
@@ -51,7 +54,7 @@ class UI_Window(QWidget):
         # Pixmaps
         happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
         create4CarePixmap = QPixmap.fromImage(QImage('create4care.png'))
-        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('battery_empty.png'))
+        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('~battery_empty.png'))
         self.warningPixmap = QPixmap.fromImage(QImage('warning.png'))
         self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('warning_placeholder.png'))
         self.battery100Pixmap = QPixmap.fromImage(QImage('battery_100.png'))
@@ -77,7 +80,7 @@ class UI_Window(QWidget):
         self.emptyLabel.setStyleSheet("background:transparent")
 
         # Shapes & Lines
-        backgroundRectangle = QGraphicsRectItem(0, 0, 200, 480)
+        backgroundRectangle = QGraphicsRectItem(0, 0, 200, 443)
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
 
         # TextItems
@@ -105,11 +108,11 @@ class UI_Window(QWidget):
         self.scene.addWidget(self.emptyLabel)
         # self.batteryPixmapItem = self.scene.addPixmap(battery100Pixmap).setPos(39,30)
         self.happyMeasurePixmapItem = self.scene.addPixmap(
-            happyMeasurePixmap).setPos(38, 327)
+            happyMeasurePixmap).setPos(38, 307)
         self.create4CarePixmapItem = self.scene.addPixmap(
-            create4CarePixmap).setPos(38, 406)
+            create4CarePixmap).setPos(38, 386)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
-        self.lineItem = self.scene.addLine(400, 3, 400, 477, pen)
+        self.lineItem = self.scene.addLine(400, 3, 400, 438, pen)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")

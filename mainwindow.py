@@ -1,31 +1,34 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QIcon, QPixmap, QImage, QPainter, QPen, QBrush, QFont, QColor
-from typing import Union
+#from typing import Union
 import sys
 import cv2
 import threading
 import time
 import os
-
+import RPi.GPIO as GPIO
 
 class UI_Window(QWidget):
     counterSignal = pyqtSignal(str)
     distanceSignal = pyqtSignal(str)
 
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    GPIO.setup(15,GPIO.OUT)
+
     def __init__(self):
         QWidget.__init__(self)
 
-        screenWidth = 800
+        screenWidth = 780
         screenHeight = 480
+        GPIO.output(15,GPIO.HIGH)
 
         # QTimer uses QFrameSlots wherein every video frame from the live preview is encoded.
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrameSlot)
         # self.timer.timeout.connect(self.requestPower)
         # self.timer.timeout.connect(self.requestDistance)
-
-        
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene, self)
         self.view.setStyleSheet("border: 0px")
@@ -35,7 +38,7 @@ class UI_Window(QWidget):
         self.openCamera()
 
         self.label = QLabel()
-        self.label.setFixedSize(800, 480)
+        self.label.setFixedSize(778, 443)
 
         # QPen is used to change the properties of the middle line drawn in the GUI.
         pen = QPen()
@@ -49,17 +52,17 @@ class UI_Window(QWidget):
         font2.setPixelSize(70)
 
         # Pixmaps
-        happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
-        create4CarePixmap = QPixmap.fromImage(QImage('create4care.png'))
-        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('battery_empty.png'))
-        self.warningPixmap = QPixmap.fromImage(QImage('warning.png'))
-        self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('warning_placeholder.png'))
-        self.battery100Pixmap = QPixmap.fromImage(QImage('battery_100.png'))
-        self.battery80Pixmap = QPixmap.fromImage(QImage('battery_80.png'))
-        self.battery60Pixmap = QPixmap.fromImage(QImage('battery_60.png'))
-        self.battery40Pixmap = QPixmap.fromImage(QImage('battery_40.png'))
-        self.battery20Pixmap = QPixmap.fromImage(QImage('battery_20.png'))
-        self.battery0Pixmap = QPixmap.fromImage(QImage('battery_0.png'))
+        happyMeasurePixmap = QPixmap.fromImage(QImage('img/happy_measure.png'))
+        create4CarePixmap = QPixmap.fromImage(QImage('img/create4care.png'))
+        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('img/battery_empty.png'))
+        self.warningPixmap = QPixmap.fromImage(QImage('img/warning.png'))
+        self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('img/warning_placeholder.png'))
+        self.battery100Pixmap = QPixmap.fromImage(QImage('img/battery_100.png'))
+        self.battery80Pixmap = QPixmap.fromImage(QImage('img/battery_80.png'))
+        self.battery60Pixmap = QPixmap.fromImage(QImage('img/battery_60.png'))
+        self.battery40Pixmap = QPixmap.fromImage(QImage('img/battery_40.png'))
+        self.battery20Pixmap = QPixmap.fromImage(QImage('img/battery_20.png'))
+        self.battery0Pixmap = QPixmap.fromImage(QImage('img/battery_0.png'))
 
         # Labels
         self.batteryLabel = QLabel()
@@ -77,14 +80,10 @@ class UI_Window(QWidget):
         self.emptyLabel.setStyleSheet("background:transparent")
 
         # Shapes & Lines
-        backgroundRectangle = QGraphicsRectItem(0, 0, 200, 480)
+        backgroundRectangle = QGraphicsRectItem(0, 0, 200, 443)
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
 
         # TextItems
-        # self.lengthTextItem = QGraphicsTextItem("00,0 cm")
-        # self.lengthTextItem.setFont(font)
-        # self.lengthTextItem.setPos(200, 200)
-        # self.lengthTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
@@ -93,6 +92,7 @@ class UI_Window(QWidget):
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
         threading.Thread(target=self.counterThread).start()
+        threading.Thread(target=self.standbyThread).start()
 
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
         layout.addWidget(self.view)
@@ -105,11 +105,11 @@ class UI_Window(QWidget):
         self.scene.addWidget(self.emptyLabel)
         # self.batteryPixmapItem = self.scene.addPixmap(battery100Pixmap).setPos(39,30)
         self.happyMeasurePixmapItem = self.scene.addPixmap(
-            happyMeasurePixmap).setPos(38, 327)
+            happyMeasurePixmap).setPos(38, 307)
         self.create4CarePixmapItem = self.scene.addPixmap(
-            create4CarePixmap).setPos(38, 406)
+            create4CarePixmap).setPos(38, 386)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
-        self.lineItem = self.scene.addLine(400, 3, 400, 477, pen)
+        self.lineItem = self.scene.addLine(400, 3, 400, 438, pen)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")
@@ -126,7 +126,7 @@ class UI_Window(QWidget):
             msgBox.exec_()
             return
 
-        self.timer.start(1000./24)
+        self.timer.start(50)
 
     def requestPower(self):
         print("bla")
@@ -153,6 +153,19 @@ class UI_Window(QWidget):
                 self.batteryLabel.setPixmap(self.battery0Pixmap)
             self.counterSignal.emit(str(x)+"%")
             time.sleep(.25)
+    
+    def standbyThread(self):
+        timer = 0
+        while True:
+            if (timer == 12):
+                timer = 0
+                GPIO.output(15,GPIO.HIGH)
+            else:
+                if (timer == 10):
+                    timer = 0
+                    GPIO.output(15,GPIO.LOW)
+                timer += 1
+            time.sleep(1)
 
     def stopCamera(self):
         '''Stops the camera.'''

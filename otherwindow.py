@@ -109,6 +109,7 @@ class UI_Window(QWidget):
         threading.Thread(target=self.inputHandlerThread).start()
         self.distanceSignal.connect(self.lengthTextItem.setPlainText)
         threading.Thread(target=self.distanceThread).start()
+        threading.Thread(target=self.standbyThread).start()
 
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
         layout.addWidget(self.view)
@@ -143,6 +144,7 @@ class UI_Window(QWidget):
             return
 
         self.timer.start(50)
+
 
     def batteryManageThread(self):
      #   eightVal = GPIO.input(8)

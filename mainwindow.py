@@ -16,6 +16,11 @@ class UI_Window(QWidget):
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     GPIO.setup(15,GPIO.OUT)
+    GPIO.setup(14, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(8, GPIO.IN)
+    GPIO.setup(10, GPIO.IN)
+    GPIO.setup(9, GPIO.IN)
+    GPIO.setup(11, GPIO.IN)
 
     def __init__(self):
         QWidget.__init__(self)
@@ -91,7 +96,8 @@ class UI_Window(QWidget):
 
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
-        threading.Thread(target=self.counterThread).start()
+        threading.Thread(target=self.batteryManagerThread).start()
+        threading.Thread(target=self.inputHandlerThread).start()
         threading.Thread(target=self.standbyThread).start()
 
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
@@ -128,44 +134,87 @@ class UI_Window(QWidget):
 
         self.timer.start(50)
 
-    def requestPower(self):
-        print("bla")
+    def batteryManagerThread(self):
+     #   eightVal = GPIO.input(8)
+     #   tenVal = GPIO.input(10)
+     #   nineVal = GPIO.input(9)
+     #   elevenVal = GPIO.input(11)
+      while True:
+        pinValues = [GPIO.input(8), GPIO.input(10), GPIO.input(9), GPIO.input(11)]
+        if (pinValues == [0, 0, 0, 1]):
+          self.batteryLabel.setPixmap(self.battery0Pixmap)
+          self.counterSignal.emit("0%")
+        elif (pinValues == [0, 0, 1, 0]):
+          GPIO.output(15, GPIO.LOW)
+          self.batteryLabel.setPixmap(self.battery20Pixmap)
+          self.counterSignal.emit("5%")
+        elif (pinValues == [0, 0, 1, 1]):
+          self.emptyLabel.setPixmap(self.batteryEmptyPixmap)
+          self.batteryLabel.setPixmap(self.battery20Pixmap)
+          self.counterSignal.emit("10%")
+        elif (pinValues == [0, 1, 0, 0]):
+          self.emptyLabel.setPixmap("")
+          self.batteryLabel.setPixmap(self.battery20Pixmap)
+          self.counterSignal.emit("15%")
+        elif (pinValues == [0, 1, 0, 1]):
+          self.warningLabel.setPixmap(self.warningPixmap)
+          self.batteryLabel.setPixmap(self.battery20Pixmap)
+          self.counterSignal.emit("20%")
+        elif (pinValues == [0, 1, 1, 0]):
+          self.warningLabel.setPixmap("")
+          self.batteryLabel.setPixmap(self.battery40Pixmap)
+          self.counterSignal.emit("25%")
+        elif (pinValues == [1, 0, 0, 0]):
+          self.batteryLabel.setPixmap(self.battery40Pixmap)
+          self.counterSignal.emit("40%")
+        elif (pinValues == [1, 0, 0, 1]):
+          self.batteryLabel.setPixmap(self.battery60Pixmap)
+          self.counterSignal.emit("50%")
+        elif (pinValues == [1, 0, 1, 0]):
+          self.batteryLabel.setPixmap(self.battery60Pixmap)
+          self.counterSignal.emit("60%")
+        elif (pinValues == [1, 0, 1, 1]):
+          self.batteryLabel.setPixmap(self.battery80Pixmap)
+          self.counterSignal.emit("70%")
+        elif (pinValues == [1, 1, 0, 0]):
+          self.batteryLabel.setPixmap(self.battery80Pixmap)
+          self.counterSignal.emit("80%")
+        elif (pinValues == [1, 1, 0, 1]):
+          self.batteryLabel.setPixmap(self.battery100Pixmap)
+          self.counterSignal.emit("90%")
+        elif (pinValues == [1, 1, 1, 0]):
+          self.batteryLabel.setPixmap(self.battery100Pixmap)
+          self.counterSignal.emit("100%")
+        else:
+          self.counterSignal.emit("?")
+        time.sleep(10)
 
-    def requestDistance(self):
-        print("bla")
+    def inputHandlerThread(self):
+      screenEnabled = True
+      while True:
+        buttonHigh = GPIO.input(14)
+        if (buttonHigh == 0):
+          if(screenEnabled):
+            GPIO.output(15, GPIO.LOW)
+          else:
+            GPIO.output(15, GPIO.HIGH)
+          screenEnabled = (not screenEnabled)
+          time.sleep(0.5)
+        time.sleep(0.1)
 
-    def counterThread(self):
-        self.batteryLabel.setPixmap(self.battery80Pixmap)
-
-        for x in range(65, 0, -1):
-            if (x == 79):
-               self.batteryLabel.setPixmap(self.battery80Pixmap)
-            if (x == 59):
-                self.batteryLabel.setPixmap(self.battery60Pixmap)
-            if (x == 39):
-                self.batteryLabel.setPixmap(self.battery40Pixmap)
-            if (x == 19):
-                self.warningLabel.setPixmap(self.warningPixmap)
-                self.batteryLabel.setPixmap(self.battery20Pixmap)
-            if (x == 9):
-                self.emptyLabel.setPixmap(self.batteryEmptyPixmap)
-            if (x == 0):
-                self.batteryLabel.setPixmap(self.battery0Pixmap)
-            self.counterSignal.emit(str(x)+"%")
-            time.sleep(.25)
-    
     def standbyThread(self):
-        timer = 0
-        while True:
-            if (timer == 12):
-                timer = 0
-                GPIO.output(15,GPIO.HIGH)
-            else:
-                if (timer == 10):
-                    timer = 0
-                    GPIO.output(15,GPIO.LOW)
-                timer += 1
-            time.sleep(1)
+      timer = 0
+      while True:
+        if (timer == 600):
+          GPIO.output(15, GPIO.LOW)
+          while (timer == 600):
+            if (GPIO.input(14) == 0):
+              GPIO.output(15, GPIO.HIGH)
+              timer = 0
+              time.sleep(0.5)
+        else:
+          timer += 1
+        time.sleep(1)
 
     def stopCamera(self):
         '''Stops the camera.'''

@@ -55,20 +55,20 @@ class UI_Window(QWidget):
         font.setPixelSize(26)
 
         font2 = QFont('Noto')
-        font2.setPixelSize(70)
+        font2.setPixelSize(50)
 
         # Pixmaps
         #happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
         #create4CarePixmap = QPixmap.fromImage(QImage('create4care.png'))
-        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('battery_empty.png'))
-        self.warningPixmap = QPixmap.fromImage(QImage('warning.png'))
-        self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('warning_placeholder.png'))
-        self.battery100Pixmap = QPixmap.fromImage(QImage('battery_100.png'))
-        self.battery80Pixmap = QPixmap.fromImage(QImage('battery_80.png'))
-        self.battery60Pixmap = QPixmap.fromImage(QImage('battery_60.png'))
-        self.battery40Pixmap = QPixmap.fromImage(QImage('battery_40.png'))
-        self.battery20Pixmap = QPixmap.fromImage(QImage('battery_20.png'))
-        self.battery0Pixmap = QPixmap.fromImage(QImage('battery_0.png'))
+        self.batteryEmptyPixmap = QPixmap.fromImage(QImage('img/battery_empty.png'))
+        self.warningPixmap = QPixmap.fromImage(QImage('img/warning.png'))
+        self.warningPlaceholderPixmap = QPixmap.fromImage(QImage('img/warning_placeholder.png'))
+        self.battery100Pixmap = QPixmap.fromImage(QImage('img/battery_100.png'))
+        self.battery80Pixmap = QPixmap.fromImage(QImage('img/battery_80.png'))
+        self.battery60Pixmap = QPixmap.fromImage(QImage('img/battery_60.png'))
+        self.battery40Pixmap = QPixmap.fromImage(QImage('img/battery_40.png'))
+        self.battery20Pixmap = QPixmap.fromImage(QImage('img/battery_20.png'))
+        self.battery0Pixmap = QPixmap.fromImage(QImage('img/battery_0.png'))
 
         # Labels
         self.batteryLabel = QLabel()
@@ -92,11 +92,11 @@ class UI_Window(QWidget):
         # TextItems
         self.lengthTextItem = QGraphicsTextItem("")
         self.lengthTextItem.setFont(font2)
-        self.lengthTextItem.setPos(600, 300)
+        self.lengthTextItem.setPos(610, 300)
         self.lengthTextItem.setDefaultTextColor(Qt.white)
         self.lengthUnitTextItem = QGraphicsTextItem("cm")
         self.lengthUnitTextItem.setFont(font)
-        self.lengthUnitTextItem.setPos(600 + 60, 380)
+        self.lengthUnitTextItem.setPos(600 + 60, 360)
         self.lengthUnitTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
@@ -208,7 +208,7 @@ class UI_Window(QWidget):
         while True:
           schuifmaat = CDLL("./schuifmaat.so")
           schuifmaat.meassureDistance.restype = c_float
-          distance = round(schuifmaat.meassureDistance(), 2)
+          distance = round(schuifmaat.meassureDistance()+16.525, 2)
           self.distanceSignal.emit(str(distance))
           time.sleep(2)
 
@@ -217,7 +217,7 @@ class UI_Window(QWidget):
       while True:
         buttonHigh = GPIO.input(14)
         if (buttonHigh == 0):
-          if(screenEnabled):
+          if (screenEnabled):
             GPIO.output(15, GPIO.LOW)
           else:
             GPIO.output(15, GPIO.HIGH)
@@ -225,6 +225,20 @@ class UI_Window(QWidget):
           time.sleep(0.5)
         time.sleep(0.1)
 
+    def standbyThread(self):
+      timer = 0
+      while True:
+        if (timer == 600):
+          GPIO.output(15, GPIO.LOW)
+          while (timer == 600):
+            if (GPIO.input(14) == 0):
+              GPIO.output(15, GPIO.HIGH)
+              timer = 0
+              time.sleep(0.5)
+        else:
+          timer += 1
+        time.sleep(1)
+        
     def stopCamera(self):
         '''Stops the camera.'''
         self.timer.stop()
@@ -234,7 +248,7 @@ class UI_Window(QWidget):
         '''Reads the next frame from the OpenCV camera object and outputs it to a QPixmap.'''
         rval, frame = self.vc.read()
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame = cv2.flip(frame,-1)
+#        frame = cv2.flip(frame,-1)
         image = QImage(frame, frame.shape[1],
                        frame.shape[0], QImage.Format_RGB888)
         pixmap = QPixmap.fromImage(image)

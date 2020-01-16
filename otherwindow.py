@@ -153,50 +153,48 @@ class UI_Window(QWidget):
      #   elevenVal = GPIO.input(11)
       while True:
         pinValues = [GPIO.input(8), GPIO.input(10), GPIO.input(9), GPIO.input(11)]
-        if (pinValues == [GPIO.LOW, GPIO.LOW, GPIO.LOW, GPIO.LOW]):
+        if (pinValues == [0, 0, 0, 1]):
           self.batteryLabel.setPixmap(self.battery0Pixmap)
           self.counterSignal.emit("0%")
-        elif (pinValues == [GPIO.LOW, GPIO.LOW, GPIO.LOW, GPIO.HIGH]):
+        elif (pinValues == [0, 0, 1, 0]):
+          GPIO.output(15, GPIO.LOW)
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("5%")
-        elif (pinValues == [GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.LOW]):
+        elif (pinValues == [0, 0, 1, 1]):
           self.emptyLabel.setPixmap(self.batteryEmptyPixmap)
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("10%")
-        elif (pinValues == [GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.HIGH]):
+        elif (pinValues == [0, 1, 0, 0]):
           self.emptyLabel.setPixmap("")
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("15%")
-        elif (pinValues == [GPIO.LOW, GPIO.HIGH, GPIO.LOW, GPIO.LOW]):
+        elif (pinValues == [0, 1, 0, 1]):
           self.warningLabel.setPixmap(self.warningPixmap)
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("20%")
-        elif (pinValues == [GPIO.LOW, GPIO.HIGH, GPIO.LOW, GPIO.HIGH]):
+        elif (pinValues == [0, 1, 1, 0]):
           self.warningLabel.setPixmap("")
           self.batteryLabel.setPixmap(self.battery40Pixmap)
           self.counterSignal.emit("25%")
-        elif (pinValues == [GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.LOW]):
-          self.batteryLabel.setPixmap(self.battery40Pixmap)
-          self.counterSignal.emit("30%")
-        elif (pinValues == [GPIO.LOW, GPIO.HIGH, GPIO.HIGH, GPIO.HIGH]):
+        elif (pinValues == [1, 0, 0, 0]):
           self.batteryLabel.setPixmap(self.battery40Pixmap)
           self.counterSignal.emit("40%")
-        elif (pinValues == [GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.LOW]):
+        elif (pinValues == [1, 0, 0, 1]):
           self.batteryLabel.setPixmap(self.battery60Pixmap)
           self.counterSignal.emit("50%")
-        elif (pinValues == [GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.HIGH]):
+        elif (pinValues == [1, 0, 1, 0]):
           self.batteryLabel.setPixmap(self.battery60Pixmap)
           self.counterSignal.emit("60%")
-        elif (pinValues == [GPIO.HIGH, GPIO.LOW, GPIO.HIGH, GPIO.LOW]):
+        elif (pinValues == [1, 0, 1, 1]):
           self.batteryLabel.setPixmap(self.battery80Pixmap)
           self.counterSignal.emit("70%")
-        elif (pinValues == [GPIO.HIGH, GPIO.LOW, GPIO.HIGH, GPIO.HIGH]):
+        elif (pinValues == [1, 1, 0, 0]):
           self.batteryLabel.setPixmap(self.battery80Pixmap)
           self.counterSignal.emit("80%")
-        elif (pinValues == [GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.LOW]):
+        elif (pinValues == [1, 1, 0, 1]):
           self.batteryLabel.setPixmap(self.battery100Pixmap)
           self.counterSignal.emit("90%")
-        elif (pinValues == [GPIO.HIGH, GPIO.HIGH, GPIO.LOW, GPIO.HIGH]):
+        elif (pinValues == [1, 1, 1, 0]):
           self.batteryLabel.setPixmap(self.battery100Pixmap)
           self.counterSignal.emit("100%")
         else:
@@ -208,9 +206,9 @@ class UI_Window(QWidget):
         while True:
           schuifmaat = CDLL("./schuifmaat.so")
           schuifmaat.meassureDistance.restype = c_float
-          distance = round(schuifmaat.meassureDistance()+16.525, 2)
+          distance = round(schuifmaat.meassureDistance()+16.525, 1)
           self.distanceSignal.emit(str(distance))
-          time.sleep(2)
+#          time.sleep(2)
 
     def inputHandlerThread(self):
       screenEnabled = True

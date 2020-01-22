@@ -23,11 +23,12 @@ class UI_Window(QWidget):
     GPIO.setup(10, GPIO.IN)
     GPIO.setup(9, GPIO.IN)
     GPIO.setup(11, GPIO.IN)
+
     def __init__(self):
         QWidget.__init__(self)
-
-        screenWidth = 780
+        screenWidth = 800
         screenHeight = 480
+
         GPIO.output(15,GPIO.HIGH)
 
         # QTimer uses QFrameSlots wherein every video frame from the live preview is encoded.
@@ -39,17 +40,24 @@ class UI_Window(QWidget):
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene, self)
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(QMargins())
+        layout.setSpacing(0)
+        self.view.setContentsMargins(QMargins())
+        self.view.setStyleSheet("border-width: 0px; border-style: solid")
 
         time.sleep(5)
         self.openCamera()
 
         self.label = QLabel()
-        self.label.setFixedSize(765, 443)
+        self.label.setFixedSize(screenWidth, screenHeight)
 
         # QPen is used to change the properties of the middle line drawn in the GUI.
         pen = QPen()
         pen.setWidth(7)
         pen.setColor(Qt.green)
+
+        rectPen = QPen()
+        rectPen.setStyle(Qt.NoPen)
         # QFont is used to change the properties of the text rendered in the GUI.
         font = QFont('Noto')
         font.setPixelSize(26)
@@ -74,7 +82,7 @@ class UI_Window(QWidget):
         # Labels
         self.batteryLabel = QLabel()
         self.batteryLabel.setFixedSize(120, 41)
-        self.batteryLabel.setGeometry(625,30,0,0)
+        self.batteryLabel.setGeometry(screenWidth - 200 + 40, 30,0,0)
 
         self.warningLabel = QLabel()
         self.warningLabel.setFixedSize(129,66)
@@ -87,18 +95,15 @@ class UI_Window(QWidget):
         self.emptyLabel.setStyleSheet("background:transparent")
 
         # Shapes & Lines
-        backgroundRectangle = QGraphicsRectItem(600, 0, 170, 442)
+        backgroundRectangle = QGraphicsRectItem(screenWidth - 200, 0, 200, screenHeight)
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
+        backgroundRectangle.setPen(rectPen)
 
         # TextItems
         self.lengthTextItem = QGraphicsTextItem("")
         self.lengthTextItem.setFont(font2)
-        self.lengthTextItem.setPos(610, 300)
+        self.lengthTextItem.setPos(screenWidth - 200, screenHeight - 100)
         self.lengthTextItem.setDefaultTextColor(Qt.white)
-        self.lengthUnitTextItem = QGraphicsTextItem("cm")
-        self.lengthUnitTextItem.setFont(font)
-        self.lengthUnitTextItem.setPos(600 + 60, 360)
-        self.lengthUnitTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
@@ -118,7 +123,6 @@ class UI_Window(QWidget):
         self.scene.addItem(backgroundRectangle)
         self.scene.addItem(self.lengthTextItem)
         self.scene.addItem(self.batteryTextItem)
-        self.scene.addItem(self.lengthUnitTextItem)
         self.scene.addWidget(self.batteryLabel)
         self.scene.addWidget(self.warningLabel)
         self.scene.addWidget(self.emptyLabel)
@@ -127,7 +131,7 @@ class UI_Window(QWidget):
         #self.create4CarePixmapItem = self.scene.addPixmap(
         #    create4CarePixmap).setPos(600+38, 406)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
-        self.lineItem = self.scene.addLine(400, 3, 400, 438, pen)
+#        self.lineItem = self.scene.addLine(400, 3, 400, 438, pen)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")
@@ -209,7 +213,7 @@ class UI_Window(QWidget):
           schuifmaat = CDLL("./schuifmaat.so")
           schuifmaat.meassureDistance.restype = c_float
           distance = round(schuifmaat.meassureDistance()+16.525, 1)
-          self.distanceSignal.emit(str(distance))
+          self.distanceSignal.emit(str(distance) + " cm")
 #          time.sleep(2)
 
     def inputHandlerThread(self):

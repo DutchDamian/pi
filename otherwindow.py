@@ -69,6 +69,7 @@ class UI_Window(QWidget):
         self.battery40Pixmap = QPixmap.fromImage(QImage('img/battery_40.png'))
         self.battery20Pixmap = QPixmap.fromImage(QImage('img/battery_20.png'))
         self.battery0Pixmap = QPixmap.fromImage(QImage('img/battery_0.png'))
+        self.batteryUnknownPixmap = QPixmap.fromImage(QImage('img/battery_unknown.png'))
 
         # Labels
         self.batteryLabel = QLabel()
@@ -198,6 +199,7 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery100Pixmap)
           self.counterSignal.emit("100%")
         else:
+          self.batteryLabel.setPixmap(self.batteryUnknownPixmap)
           self.counterSignal.emit("?")
         time.sleep(10)
         #self.batteryLabel.setPixmap(self.battery100Pixmap)

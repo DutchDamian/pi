@@ -42,15 +42,19 @@ class UI_Window(QWidget):
         layout.setContentsMargins(QMargins())
         layout.setSpacing(0)
 
-#        self.openCamera()
+        self.openCamera()
 
         self.label = QLabel()
         self.label.setFixedSize(screenWidth, screenHeight)
 
         # QPen is used to change the properties of the middle line drawn in the GUI.
         pen = QPen()
-        pen.setWidth(7)
+        pen.setWidth(5)
         pen.setColor(Qt.green)
+        pen.setStyle(Qt.DotLine)
+
+        rectPen = QPen()
+        rectPen.setStyle(Qt.NoPen)
         # QFont is used to change the properties of the text rendered in the GUI.
         font = QFont('Noto')
         font.setPixelSize(26)
@@ -70,6 +74,7 @@ class UI_Window(QWidget):
         self.battery40Pixmap = QPixmap.fromImage(QImage('img/battery_40.png'))
         self.battery20Pixmap = QPixmap.fromImage(QImage('img/battery_20.png'))
         self.battery0Pixmap = QPixmap.fromImage(QImage('img/battery_0.png'))
+        self.batteryUnknownPixmap = QPixmap.fromImage(QImage('img/battery_unknown.png'))
 
         # Labels
         self.batteryLabel = QLabel()
@@ -89,18 +94,19 @@ class UI_Window(QWidget):
         # Shapes & Lines
         backgroundRectangle = QGraphicsRectItem(0, 0, 200, screenHeight)
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
+        backgroundRectangle.setPen(rectPen)
 
         # TextItems
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
-        self.batteryTextItem.setPos(39 + 30, 75)
+        self.batteryTextItem.setPos(39 + 45, 75)
 
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
         threading.Thread(target=self.batteryManagerThread).start()
         threading.Thread(target=self.inputHandlerThread).start()
-        threading.Thread(target=self.standbyThread).start()
+#        threading.Thread(target=self.standbyThread).start()
 
         # Add all widgets - THE ORDER OF THE ADDWIDGETS DECIDES WHICH WIDGETS APPEAR ON THE FOREGROUND
         layout.addWidget(self.view)
@@ -117,7 +123,7 @@ class UI_Window(QWidget):
         self.create4CarePixmapItem = self.scene.addPixmap(
             create4CarePixmap).setPos(38, 386)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
-        self.lineItem = self.scene.addLine(400, 3, 400, 438, pen)
+        self.lineItem = self.scene.addLine(400 - 2, 5, 400 - 2, screenHeight - 5, pen)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")
@@ -188,6 +194,7 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery100Pixmap)
           self.counterSignal.emit("100%")
         else:
+          self.batteryLabel.setPixmap(self.batteryUnknownPixmap)
           self.counterSignal.emit("?")
         time.sleep(10)
 

@@ -25,7 +25,7 @@ class UI_Window(QWidget):
     def __init__(self):
         QWidget.__init__(self)
 
-        screenWidth = 780
+        screenWidth = 800
         screenHeight = 480
         GPIO.output(15,GPIO.HIGH)
 
@@ -36,14 +36,16 @@ class UI_Window(QWidget):
         # self.timer.timeout.connect(self.requestDistance)
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene, self)
-        self.view.setStyleSheet("border: 0px")
-        self.view.setFrameStyle(QFrame.NoFrame)
+        self.view.setContentsMargins(QMargins())
+        self.view.setStyleSheet("border-width: 0px; border-style: solid")
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(QMargins())
+        layout.setSpacing(0)
 
-        self.openCamera()
+#        self.openCamera()
 
         self.label = QLabel()
-        self.label.setFixedSize(778, 443)
+        self.label.setFixedSize(screenWidth, screenHeight)
 
         # QPen is used to change the properties of the middle line drawn in the GUI.
         pen = QPen()
@@ -85,7 +87,7 @@ class UI_Window(QWidget):
         self.emptyLabel.setStyleSheet("background:transparent")
 
         # Shapes & Lines
-        backgroundRectangle = QGraphicsRectItem(0, 0, 200, 443)
+        backgroundRectangle = QGraphicsRectItem(0, 0, 200, screenHeight)
         backgroundRectangle.setBrush(QBrush(QColor(47, 47, 125)))
 
         # TextItems

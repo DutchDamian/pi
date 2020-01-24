@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QIcon, QPixmap, QImage, QPainter, QPen, QBrush, QFont, QColor
-from typing import Union
+#from typing import Union
 import sys
 import cv2
 import threading
@@ -53,17 +53,18 @@ class UI_Window(QWidget):
 
         # QPen is used to change the properties of the middle line drawn in the GUI.
         pen = QPen()
-        pen.setWidth(7)
+        pen.setWidth(5)
+        pen.setStyle(Qt.DotLine)
         pen.setColor(Qt.green)
 
         rectPen = QPen()
         rectPen.setStyle(Qt.NoPen)
         # QFont is used to change the properties of the text rendered in the GUI.
-        font = QFont('Noto')
+        font = QFont()
         font.setPixelSize(26)
 
-        font2 = QFont('Noto')
-        font2.setPixelSize(50)
+        font2 = QFont()
+        font2.setPixelSize(45)
 
         # Pixmaps
         #happyMeasurePixmap = QPixmap.fromImage(QImage('happy_measure.png'))
@@ -102,12 +103,12 @@ class UI_Window(QWidget):
         # TextItems
         self.lengthTextItem = QGraphicsTextItem("")
         self.lengthTextItem.setFont(font2)
-        self.lengthTextItem.setPos(screenWidth - 200, screenHeight - 100)
+        self.lengthTextItem.setPos(screenWidth - 200 + 5, screenHeight - 100)
         self.lengthTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem = QGraphicsTextItem("100%")
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
-        self.batteryTextItem.setPos(630 + 20, 75)
+        self.batteryTextItem.setPos(screenWidth - 200 + 85, 75)
 
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
@@ -131,7 +132,7 @@ class UI_Window(QWidget):
         #self.create4CarePixmapItem = self.scene.addPixmap(
         #    create4CarePixmap).setPos(600+38, 406)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
-#        self.lineItem = self.scene.addLine(400, 3, 400, 438, pen)
+        self.lineItem = self.scene.addLine(screenWidth / 2, 5, screenWidth / 2, screenHeight - 5, pen)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")

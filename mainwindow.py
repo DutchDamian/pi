@@ -80,6 +80,7 @@ class UI_Window(QWidget):
         self.batteryLabel = QLabel()
         self.batteryLabel.setFixedSize(120, 41)
         self.batteryLabel.setGeometry(39,30,0,0)
+        self.batteryLabel.setPixmap(batteryUnknownPixmap)
 
         self.warningLabel = QLabel()
         self.warningLabel.setFixedSize(129,66)
@@ -101,6 +102,7 @@ class UI_Window(QWidget):
         self.batteryTextItem.setFont(font)
         self.batteryTextItem.setDefaultTextColor(Qt.white)
         self.batteryTextItem.setPos(39 + 45, 75)
+        self.batteryTextItem.setPlainText("?")
 
         self.counterSignal.connect(self.batteryTextItem.setPlainText)
         # self.distanceSignal.connect(self.lengthTextItem.setPlaintext)
@@ -196,9 +198,9 @@ class UI_Window(QWidget):
         elif (pinValues == [1, 1, 1, 0]):
           self.batteryLabel.setPixmap(self.battery100Pixmap)
           self.counterSignal.emit("100%")
-        else:
-          self.batteryLabel.setPixmap(self.batteryUnknownPixmap)
-          self.counterSignal.emit("?")
+#        else:
+          #self.batteryLabel.setPixmap(self.batteryUnknownPixmap)
+          #self.counterSignal.emit("?")
         time.sleep(10)
 
     def inputHandlerThread(self):

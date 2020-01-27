@@ -45,7 +45,6 @@ class UI_Window(QWidget):
         self.view.setContentsMargins(QMargins())
         self.view.setStyleSheet("border-width: 0px; border-style: solid")
 
-        time.sleep(5)
         self.openCamera()
 
         self.label = QLabel()
@@ -144,9 +143,9 @@ class UI_Window(QWidget):
         self.vc.set(4, 480)
 
         if not self.vc.isOpened():
-            msgBox = QMessageBox()
-            msgBox.setText("Failed to open camera.")
-            msgBox.exec_()
+#            msgBox = QMessageBox()
+#            msgBox.setText("Failed to open camera.")
+#            msgBox.exec_()
             return
 
         self.timer.start(50)
@@ -171,7 +170,7 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("10%")
         elif (pinValues == [0, 1, 0, 0]):
-          self.emptyLabel.setPixmap("")
+          self.emptyLabel.clear
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("15%")
         elif (pinValues == [0, 1, 0, 1]):
@@ -179,7 +178,7 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("20%")
         elif (pinValues == [0, 1, 1, 0]):
-          self.warningLabel.setPixmap("")
+          self.warningLabel.clear
           self.batteryLabel.setPixmap(self.battery40Pixmap)
           self.counterSignal.emit("25%")
         elif (pinValues == [1, 0, 0, 0]):

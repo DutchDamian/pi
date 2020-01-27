@@ -132,7 +132,7 @@ class UI_Window(QWidget):
         #self.create4CarePixmapItem = self.scene.addPixmap(
         #    create4CarePixmap).setPos(600+38, 406)
         # If lineThickness < 10: startX = 10 - lineThickness & endY = 480 - startX
-        self.lineItem = self.scene.addLine((screenWidth / 2) + 2, 5, (screenWidth / 2) + 2, screenHeight - 5, pen)
+        self.lineItem = self.scene.addLine(screenWidth / 2, 5, screenWidth / 2, screenHeight - 5, pen)
 
         self.setLayout(layout)
         self.setWindowTitle("EEP71")

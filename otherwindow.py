@@ -171,7 +171,8 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("10%")
         elif (pinValues == [0, 1, 0, 0]):
-          self.emptyLabel.clear
+          self.emptyLabel.clear()
+          self.emptyLabel.setStyleSheet("background:transparent")
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("15%")
         elif (pinValues == [0, 1, 0, 1]):
@@ -179,7 +180,8 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("20%")
         elif (pinValues == [0, 1, 1, 0]):
-          self.warningLabel.clear
+          self.warningLabel.clear()
+          self.warningLabel.setStyleSheet("background:transparent")
           self.batteryLabel.setPixmap(self.battery40Pixmap)
           self.counterSignal.emit("25%")
         elif (pinValues == [1, 0, 0, 0]):
@@ -233,6 +235,10 @@ class UI_Window(QWidget):
     def standbyThread(self):
       timer = 0
       while True:
+        if (timer == 10):
+          self.stopCamera()
+        if (timer == 20):
+          self.openCamera()
         if (timer == 600):
           GPIO.output(15, GPIO.LOW)
           while (timer == 600):

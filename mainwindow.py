@@ -162,7 +162,8 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("10%")
         elif (pinValues == [0, 1, 0, 0]):
-          self.emptyLabel.clear
+          self.emptyLabel.clear()
+          self.emptyLabel.setStyleSheet("background:transparent")
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("15%")
         elif (pinValues == [0, 1, 0, 1]):
@@ -170,7 +171,8 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("20%")
         elif (pinValues == [0, 1, 1, 0]):
-          self.warningLabel.clear
+          self.warningLabel.clear()
+          self.warningLabel.setStyleSheet("background:transparent")
           self.batteryLabel.setPixmap(self.battery40Pixmap)
           self.counterSignal.emit("25%")
         elif (pinValues == [1, 0, 0, 0]):

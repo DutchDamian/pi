@@ -157,6 +157,7 @@ class UI_Window(QWidget):
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("5%")
         elif (pinValues == [0, 0, 1, 1]):
+          GPIO.output(15, GPIO.HIGH)
           self.emptyLabel.setPixmap(self.batteryEmptyPixmap)
           self.batteryLabel.setPixmap(self.battery20Pixmap)
           self.counterSignal.emit("10%")
